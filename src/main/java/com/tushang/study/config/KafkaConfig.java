@@ -10,6 +10,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,9 +23,15 @@ public class KafkaConfig {
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "139.224.136.247:9092");
-        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        // 重试次数为3
+        props.put(ProducerConfig.RETRIES_CONFIG, 3);
+        // 批量发送大小，16k发一次，如果16k没到，但是10毫秒到了也会发送
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        // 10毫秒发一次，如果10毫秒没到，但是16k到了也会提前发送
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 10);
+        // Java版本producer启动时会首先创建一块内存缓冲区用于保存待发送的消息然后由另一个专属线程负责从缓冲区中读取消息
+        //执行真正的发送。这部分内存空间的大小即是由buffer.memory参数指定的
+        //虽说producer在工作过程中会用到很多部分的内存但我们几乎可以认为该参数指定的内存大小就是producer程序使用的内存大小
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -75,6 +82,7 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String,String> kafkaTemplate() {
         KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        kafkaTemplate.setCloseTimeout(Duration.ofSeconds(0));
         return kafkaTemplate;
     }
 
