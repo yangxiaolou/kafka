@@ -20,10 +20,12 @@ public class MyListener {
 //    }
 
 
-//    @KafkaListener(id = "group",topics = {"test"})
-//    public void listen2(ConsumerRecord<?, ?> record){
-//        System.out.println("topic：" + record.topic());
-//        System.out.println("key:" + record.key());
-//        System.out.println("value:"+record.value());
-//    }
+    @KafkaListener(id = "log",topics = {"test"})
+    public void listen(ConsumerRecord<?, ?> record){
+        System.out.println("topic：" + record.topic());
+        System.out.println("key:" + record.key());
+        System.out.println("offset:" + record.offset());
+        System.out.println("partition:" + record.partition());
+        System.out.println("value:"+record.value());
+    }
 }

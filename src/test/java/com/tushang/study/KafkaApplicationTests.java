@@ -57,4 +57,11 @@ class KafkaApplicationTests {
 			System.out.println(integer);
 		});
 	}
+
+	@Test
+	public void cpuCount(){
+		final int cpuCount = Runtime.getRuntime().availableProcessors();
+		System.out.println(cpuCount);
+	}
+
 }

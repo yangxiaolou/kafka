@@ -16,6 +16,7 @@ import org.springframework.util.concurrent.SettableListenableFuture;
 import org.springframework.util.concurrent.SuccessCallback;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,7 +33,7 @@ public class KafkaController {
     @RequestMapping(value = "/send/{topic}/{value}",method = RequestMethod.GET)
     public void sendMeessageTotopic1(@PathVariable String topic, @PathVariable String value) {
         logger.info("start send message to {}",topic);
-        long aLong = LocalTime.now().getLong(MILLI_OF_SECOND);
+        long aLong = LocalDateTime.now().getLong(MILLI_OF_SECOND);
         ListenableFuture<SendResult<String, String>> send = kafkaTemplate.send(topic, value);
         send.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
             @Override
@@ -43,7 +44,7 @@ public class KafkaController {
             @Override
             public void onSuccess(SendResult<String, String> stringStringSendResult) {
                 RecordMetadata recordMetadata = stringStringSendResult.getRecordMetadata();
-                System.out.println("partition:"+recordMetadata.partition()+"。offset:"+recordMetadata.offset()+".time:"+(LocalTime.now().getLong(MILLI_OF_SECOND)-aLong));
+                System.out.println("partition:"+recordMetadata.partition()+".offset:"+recordMetadata.offset()+".time:"+(LocalDateTime.now().getLong(MILLI_OF_SECOND)-aLong));
             }
         });
     }
