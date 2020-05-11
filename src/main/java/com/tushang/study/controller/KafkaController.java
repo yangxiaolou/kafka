@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.util.concurrent.SettableListenableFuture;
@@ -31,9 +32,18 @@ public class KafkaController {
     private KafkaTemplate<String,String> kafkaTemplate;
 
     @RequestMapping(value = "/send/{topic}/{value}",method = RequestMethod.GET)
+    @Transactional //kafka事务第二种方式，注解式事务，没错就是spring中常用的Transactional，但是要注意开启事务支持
     public void sendMeessageTotopic1(@PathVariable String topic, @PathVariable String value) {
         logger.info("start send message to {}",topic);
         long aLong = LocalDateTime.now().getLong(MILLI_OF_SECOND);
+        //kafka事务第一种方式，编程式事务
+//        kafkaTemplate.executeInTransaction(kafkaOperations -> {
+//            if(true){
+//                throw new RuntimeException("抛异常，不解释");
+//            }
+//            kafkaTemplate.send(topic,value);
+//            return true;
+//        });
         ListenableFuture<SendResult<String, String>> send = kafkaTemplate.send(topic, value);
         send.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
             @Override

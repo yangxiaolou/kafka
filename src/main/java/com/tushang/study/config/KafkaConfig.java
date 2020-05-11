@@ -35,6 +35,7 @@ public class KafkaConfig {
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,"kafka_tx");//开启事务支持
         return props;
     }
 
@@ -72,12 +73,6 @@ public class KafkaConfig {
     public ConsumerFactory<String, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
-
-    @Bean//消息监听器
-    public MyListener myListener() {
-        return new MyListener();
-    }
-
 
     /* --------------kafka template configuration-----------------**/
     @Bean
