@@ -21,7 +21,12 @@ public class MyListener {
 //        System.out.println("value:"+record.value());
 //    }
 
-
+    //    The unique identifier of the container managing for this endpoint.
+//	 * <p>If none is specified an auto-generated one is provided.
+//            * <p>Note: When provided, this value will override the group id property
+//	 * in the consumer factory configuration, unless {@link #idIsGroup()}
+//	 * is set to false.
+    // id默认就是groupId
     @KafkaListener(id = "myContainer1",topics = {"test"}, groupId = "group1")
     public void listen(ConsumerRecord<?, ?> record){
         System.out.println("topic：" + record.topic());

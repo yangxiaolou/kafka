@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -35,13 +36,28 @@ public class KafkaConfig {
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,"kafka_tx");//开启事务支持
         return props;
     }
 
     @Bean
     public ProducerFactory<String, String> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerConfigs());
+        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(producerConfigs());
+        // factory开启事务功能
+        factory.transactionCapable();
+        // 设置transactionId前缀
+        factory.setTransactionIdPrefix("tran-");
+        return factory;
+    }
+
+    /**
+     * 开启事务
+     * @param producerFactory
+     * @return
+     */
+    @Bean
+    public KafkaTransactionManager transactionManager(ProducerFactory producerFactory) {
+        KafkaTransactionManager manager = new KafkaTransactionManager(producerFactory);
+        return manager;
     }
 
     /* --------------consumer configuration-----------------**/
